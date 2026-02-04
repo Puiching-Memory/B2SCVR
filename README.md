@@ -44,6 +44,12 @@ pip install -r requirements.txt
 
 - If you meet mmcv-related error, please modify the reported line ```mmcv.cnn -> mmengine.model``` / ```mmcv.runner -> mmengine.runner```.
 
+## Quick Trianing / Minimum Re-implementation for NTIRE BSCVR Challenge
+
+```bash
+   python train.py --c config/train_bscvr_hq_moe_challenge.json
+```
+
 ## Quick Test
 
 0. Prepare inputs and model checkpoints: a corrupted video bitstream and the first corruption indication (e.g., the first corruption mask in frame 9 of ```inputs/trucks-race_2.h264```). Then download the model checkpoints via [this link](https://entuedu-my.sharepoint.com/:f:/g/personal/liut0038_e_ntu_edu_sg/EvxHRdWSFpZIhyiqHU-NYmEBGy5N1iJ4I69iigYtL7FBkw?e=GpPNnL), and put them into ```checkpoints/``` folder.
