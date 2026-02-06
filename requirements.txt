@@ -2,7 +2,6 @@ tqdm
 scikit_image
 lpips
 timm
-basicsr
 fairscale
 open-clip-torch
 motion-vector-extractor

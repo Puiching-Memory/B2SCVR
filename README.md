@@ -19,23 +19,20 @@
 
 ```bash
 git clone https://github.com/LIUTIGHE/B2SCVR.git
-conda create -n b2scvr python=3.10
-conda activate b2scvr
-
-# build mmcv first according to the official documents (can ignore the torch mismatch)
-pip install mmcv==2.2.0 -f https://download.openmmlab.com/mmcv/dist/cu121/torch2.4/index.html
-
-# install torch according to the official documents
-conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.1 -c pytorch -c nvidia  
+uv venv --python=3.10 # 不能再高了
+uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+uv pip install ninja psutil setuptools
+uv pip install git+https://github.com/open-mmlab/mmcv.git -v --no-build-isolation
 
 # install DAC developed based on SAM2.1
-cd ../model/modules/sam2
-pip install -e .
+cd model/modules/sam2
+uv pip install -e . -v --no-build-isolation
 
 # other requirements
 cd ../../..
-pip install -r requirements.txt
-
+uv pip install -r requirements.txt
+uv pip install basicsr --no-build-isolation --no-deps
+uv pip install tensorboard
 ```
 
 - If intel MKL lib issue occurs, can reinstall torch with ```pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121```
@@ -47,7 +44,7 @@ pip install -r requirements.txt
 ## Quick Trianing / Minimum Re-implementation for NTIRE BSCVR Challenge
 
 ```bash
-   python train.py --c config/train_bscvr_hq_moe_challenge.json
+python train.py --c config/train_bscvr_hq_sam_moe_challenge.json
 ```
 
 ## Quick Test
@@ -55,21 +52,21 @@ pip install -r requirements.txt
 0. Prepare inputs and model checkpoints: a corrupted video bitstream and the first corruption indication (e.g., the first corruption mask in frame 9 of ```inputs/trucks-race_2.h264```). Then download the model checkpoints via [this link](https://entuedu-my.sharepoint.com/:f:/g/personal/liut0038_e_ntu_edu_sg/EvxHRdWSFpZIhyiqHU-NYmEBGy5N1iJ4I69iigYtL7FBkw?e=GpPNnL), and put them into ```checkpoints/``` folder.
    
 1. Extract the corrupted frames and motion vector (mv) and prediction mode (pm) for each frame from the input corrupted video bitstream (e.g., ```inputs/trucks-race_2.h264```)
-   ```bash
-   python inputs.py --input inputs/trucks-race_2.h264
-   ```
+```bash
+python inputs.py --input inputs/trucks-race_2.h264
+```
 
 3. Stage 1: Use DAC to detect and localize video corruption:
-   ```bash
-   cd model/modules/sam2
-   bash run.sh  # if there is a loading error, mostly related to vos_inference.py line 277-278, which sets a fixed suffix
-   ``` 
+```bash
+cd model/modules/sam2
+bash run.sh  # if there is a loading error, mostly related to vos_inference.py line 277-278, which sets a fixed suffix
+``` 
 
 3. Stage 2: Use the CFC-based recovery model to perform restoration
-   ```bash
-   cd ../../..
-   python test.py --ckpt checkpoints/B2SCVR.pth --input_video inputs/bsc_imgs/trucks-race --dac_mask inputs/results/trucks-race --width 432 --height 240  # set 240P test if OOM occurs
-   ```
+```bash
+cd ../../..
+python test.py --ckpt checkpoints/B2SCVR.pth --input_video inputs/bsc_imgs/trucks-race --dac_mask inputs/results/trucks-race --width 432 --height 240  # set 240P test if OOM occurs
+```
 
 4. The recovered frames sequence and GIF video will be saved in ```outputs/``` folder.
 
